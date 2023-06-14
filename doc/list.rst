@@ -1572,6 +1572,13 @@ List of Available Rules
    Part of rule sets `@PER <./ruleSets/PER.rst>`_ `@PER-CS <./ruleSets/PER-CS.rst>`_ `@PER-CS1.0 <./ruleSets/PER-CS1.0.rst>`_ `@PER-CS2.0 <./ruleSets/PER-CS2.0.rst>`_ `@PSR2 <./ruleSets/PSR2.rst>`_ `@PSR12 <./ruleSets/PSR12.rst>`_ `@PhpCsFixer <./ruleSets/PhpCsFixer.rst>`_ `@Symfony <./ruleSets/Symfony.rst>`_
 
    `Source PhpCsFixer\\Fixer\\PhpTag\\NoClosingTagFixer <./../src/Fixer/PhpTag/NoClosingTagFixer.php>`_
+-  `no_empty_block <./rules/control_structure/no_empty_block.rst>`_
+
+   There must not be any empty blocks.
+
+   *warning risky* Risky if the block has side effects.
+
+   `Source PhpCsFixer\\Fixer\\ControlStructure\\NoEmptyBlockFixer <./../src/Fixer/ControlStructure/NoEmptyBlockFixer.php>`_
 -  `no_empty_comment <./rules/comment/no_empty_comment.rst>`_
 
    There should not be any empty comments.
