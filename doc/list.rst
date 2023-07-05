@@ -1574,7 +1574,7 @@ List of Available Rules
    `Source PhpCsFixer\\Fixer\\PhpTag\\NoClosingTagFixer <./../src/Fixer/PhpTag/NoClosingTagFixer.php>`_
 -  `no_empty_block <./rules/control_structure/no_empty_block.rst>`_
 
-   There must not be any empty blocks.
+   There must be no empty blocks. Blocks with comment inside are NOT considered as empty.
 
    *warning risky* Risky if the block has side effects.
 
