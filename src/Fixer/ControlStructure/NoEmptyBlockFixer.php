@@ -57,16 +57,7 @@ final class NoEmptyBlockFixer extends AbstractFixer
 
     public function isCandidate(Tokens $tokens): bool
     {
-        return $tokens->isAnyTokenKindsFound([
-            T_DO,
-            T_ELSE,
-            T_FINALLY,
-            T_FOR,
-            T_IF,
-            T_SWITCH,
-            T_TRY,
-            T_WHILE,
-        ]);
+        return true;
     }
 
     protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
@@ -90,6 +81,14 @@ final class NoEmptyBlockFixer extends AbstractFixer
                 $this->fixTry($index, $tokens);
             } elseif ($token->isGivenKind(T_WHILE)) {
                 $this->fixWhile($index, $tokens);
+            } elseif ($token->equalsAny([';', [T_OPEN_TAG]])) {
+                $blockOpenIndex = $tokens->getNextMeaningfulToken($index);
+
+                if ($tokens[$blockOpenIndex]->equals('{')) {
+                    $blockClosedIndex = $tokens->findBlockEnd(Tokens::BLOCK_TYPE_CURLY_BRACE, $blockOpenIndex);
+                    $tokens->clearTokenAndMergeSurroundingWhitespace($blockClosedIndex);
+                    $tokens->clearTokenAndMergeSurroundingWhitespace($blockOpenIndex);
+                }
             }
         }
     }

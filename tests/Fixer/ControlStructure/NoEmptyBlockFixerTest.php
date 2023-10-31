@@ -823,5 +823,17 @@ class Bar
 }
 ',
         ];
+
+        yield 'block after open' => [
+            '<?php
+                echo 1;',
+            '<?php
+                {echo 1;}',
+        ];
+
+        yield 'block after `;`' => [
+            '<?php echo 2;  echo 3;  ?>',
+            '<?php echo 2; { echo 3; } ?>',
+        ];
     }
 }
