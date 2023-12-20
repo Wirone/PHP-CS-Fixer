@@ -19,23 +19,14 @@ jobs:
       matrix:
         include:
           - php-version: '7.4'
-            php-suffix: '-php7.4'
             alpine-version: '3.16'
           - php-version: '8.0'
-            php-suffix: '-php8.0'
             alpine-version: '3.16'
           - php-version: '8.1'
-            php-suffix: '-php8.1'
             alpine-version: '3.18'
           - php-version: '8.2'
-            php-suffix: '-php8.2'
             alpine-version: '3.18'
           - php-version: '8.3'
-            php-suffix: '-php8.3'
-            alpine-version: '3.18'
-          # This is the latest supported PHP Version and will be provided without -phpX.X suffix
-          - php-version: '8.3'
-            php-suffix: ''
             alpine-version: '3.18'
 
     permissions:
@@ -63,15 +54,15 @@ jobs:
         with:
           flavor: |
             latest=false
-            suffix=${{ matrix.php-suffix }}
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}
           # "edge" will only build from master, "semver" only from tags
           tags: |
-            type=edge,branch=master
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=semver,pattern=latest
+            type=edge,branch=master,suffix=-php${{ matrix.php-version }}
+            type=semver,pattern={{version}},suffix=-php${{ matrix.php-version }}
+            type=semver,pattern={{major}}.{{minor}},suffix=-php${{ matrix.php-version }}
+            type=semver,pattern={{major}},suffix=-php${{ matrix.php-version }}
+            type=semver,pattern=latest,suffix=-php${{ matrix.php-version }}
+            type=raw,value=latest,enable=${{ '8.3' == matrix.php-version && 'tag' == github.ref_type }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56
