@@ -1407,9 +1407,9 @@ For more info about updating see: https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/b
      */
     private function createConfigurationResolver(
         array $options,
-        ConfigInterface $config = null,
+        ?ConfigInterface $config = null,
         string $cwdPath = '',
-        ToolInfoInterface $toolInfo = null
+        ?ToolInfoInterface $toolInfo = null
     ): ConfigurationResolver {
         return new ConfigurationResolver(
             $config ?? new Config(),
