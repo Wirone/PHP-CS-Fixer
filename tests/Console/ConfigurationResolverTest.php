@@ -368,7 +368,7 @@ final class ConfigurationResolverTest extends TestCase
     }
 
     /**
-     * @param array<string> $paths
+     * @param list<string> $paths
      *
      * @dataProvider provideRejectInvalidPathCases
      */
@@ -1313,7 +1313,7 @@ For more info about updating see: https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/b
      *
      * @group legacy
      *
-     * @param array<string> $successors
+     * @param list<string> $successors
      */
     public function testDeprecatedRuleSetConfigured(string $ruleSet, array $successors): void
     {
