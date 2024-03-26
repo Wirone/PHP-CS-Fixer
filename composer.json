@@ -47,6 +47,7 @@
     },
     "require-dev": {
         "facile-it/paraunit": "^1.3 || ^2.0",
+        "infection/infection": "^0.27.11",
         "justinrainbow/json-schema": "^5.2",
         "keradus/cli-executor": "^2.1",
         "mikey179/vfsstream": "^1.6.11",
@@ -98,6 +99,7 @@
             "@cs:fix"
         ],
         "docs": "@php dev-tools/doc.php",
+        "infection": "@test:mutation",
         "install-tools": "@composer --working-dir=dev-tools install",
         "mess-detector": "@php dev-tools/vendor/bin/phpmd . ansi dev-tools/mess-detector/phpmd.xml --exclude vendor/*,dev-tools/vendor/*,dev-tools/phpstan/*,tests/Fixtures/*",
         "normalize": [
@@ -142,6 +144,10 @@
             "Composer\\Config::disableProcessTimeout",
             "paraunit run --testsuite integration"
         ],
+        "test:mutation": [
+            "Composer\\Config::disableProcessTimeout",
+            "infection --threads=max --only-covered --min-covered-msi=80"
+        ],
         "test:short-open-tag": [
             "Composer\\Config::disableProcessTimeout",
             "@php -d short_open_tag=1 ./vendor/bin/phpunit --do-not-cache-result --testsuite short-open-tag"
@@ -162,6 +168,7 @@
         "cs:fix": "Fix coding standards",
         "cs:fix:parallel": "⚠️DEPRECATED! Use cs:fix with proper parallel config",
         "docs": "Regenerate docs",
+        "infection": "Alias for 'test:mutation'",
         "install-tools": "Install DEV tools",
         "mess-detector": "Analyse code with Mess Detector",
         "normalize": "Run normalization for composer.json files",
@@ -178,6 +185,7 @@
         "test:all": "Run Unit and Integration tests (but *NOT* Smoke tests)",
         "test:coverage": "Run tests that provide code coverage",
         "test:integration": "Run Integration tests",
+        "test:mutation": "Run mutation tests",
         "test:short-open-tag": "Run tests with \"short_open_tag\" enabled",
         "test:smoke": "Run Smoke tests",
         "test:unit": "Run Unit tests",
