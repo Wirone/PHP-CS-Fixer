@@ -27,7 +27,7 @@ class Config implements ConfigInterface, ParallelRunnerConfigInterface
     private string $cacheFile = '.php-cs-fixer.cache';
 
     /**
-     * @var FixerInterface[]
+     * @var list<FixerInterface>
      */
     private array $customFixers = [];
 
