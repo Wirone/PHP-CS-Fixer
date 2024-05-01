@@ -210,7 +210,7 @@ final class PhpUnitAttributesFixer extends AbstractPhpUnitFixer
     private static function fixWithSingleStringValue(Tokens $tokens, int $index, Annotation $annotation): array
     {
         Preg::match(
-            sprintf('/@%s\s+(.*\S)(?:\R|\s*\*+\\/$)/', $annotation->getTag()->getName()),
+            sprintf('/@%s\s+(.*\S)(?:\R|\s*\*+\/$)/', $annotation->getTag()->getName()),
             $annotation->getContent(),
             $matches,
         );
@@ -375,11 +375,13 @@ final class PhpUnitAttributesFixer extends AbstractPhpUnitFixer
                 new Token([T_WHITESPACE, ' ']),
                 self::createEscapedStringToken($method),
             ];
+        } elseif ('RequiresPhp' === $attributeName && isset($matches[3])) {
+            $attributeTokens = [self::createEscapedStringToken($matches[2].' '.$matches[3])];
         } else {
             $attributeTokens = [self::createEscapedStringToken($matches[2])];
         }
 
-        if (isset($matches[3])) {
+        if (isset($matches[3]) && 'RequiresPhp' !== $attributeName) {
             $attributeTokens[] = new Token(',');
             $attributeTokens[] = new Token([T_WHITESPACE, ' ']);
             $attributeTokens[] = self::createEscapedStringToken($matches[3]);
@@ -425,7 +427,7 @@ final class PhpUnitAttributesFixer extends AbstractPhpUnitFixer
         if (str_starts_with($matches[1], '::')) {
             $attributeName = 'UsesFunction';
             $attributeTokens = [self::createEscapedStringToken(substr($matches[1], 2))];
-        } elseif (Preg::match('/^[a-zA-Z\d\\\\]+$/', $matches[1])) {
+        } elseif (Preg::match('/^[a-zA-Z\d\\\]+$/', $matches[1])) {
             $attributeName = 'UsesClass';
             $attributeTokens = self::toClassConstant($matches[1]);
         } else {
@@ -441,7 +443,7 @@ final class PhpUnitAttributesFixer extends AbstractPhpUnitFixer
     private static function getMatches(Annotation $annotation): array
     {
         Preg::match(
-            sprintf('/@%s\s+(\S+)(?:\s+(\S+))?(?:\s+(.+\S))?\s*(?:\R|\*+\\/$)/', $annotation->getTag()->getName()),
+            sprintf('/@%s\s+(\S+)(?:\s+(\S+))?(?:\s+(.+\S))?\s*(?:\R|\*+\/$)/', $annotation->getTag()->getName()),
             $annotation->getContent(),
             $matches,
         );

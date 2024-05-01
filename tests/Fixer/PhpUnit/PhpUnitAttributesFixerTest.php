@@ -136,6 +136,27 @@ final class PhpUnitAttributesFixerTest extends AbstractFixerTestCase
                 PHP,
         ];
 
+        yield 'fix with > in operator' => [
+            <<<'PHP'
+                <?php
+                class FooTest extends \PHPUnit\Framework\TestCase {
+                    /**
+                     */
+                    #[\PHPUnit\Framework\Attributes\RequiresPhp('>= 8.1')]
+                    public function testFoo() { self::assertTrue(true); }
+                }
+                PHP,
+            <<<'PHP'
+                <?php
+                class FooTest extends \PHPUnit\Framework\TestCase {
+                    /**
+                     * @requires PHP >= 8.1
+                     */
+                    public function testFoo() { self::assertTrue(true); }
+                }
+                PHP,
+        ];
+
         yield 'fix with trailing spaces' => self::createCase(
             ['class'],
             '#[CoversClass(Foo::class)]',
@@ -237,7 +258,7 @@ final class PhpUnitAttributesFixerTest extends AbstractFixerTestCase
 
         yield 'handle CoversClass' => self::createCase(
             ['class'],
-            '#[CoversClass(\\VendorName\\ClassName::class)]',
+            '#[CoversClass(\VendorName\ClassName::class)]',
             '@covers \VendorName\ClassName',
         );
 
@@ -512,7 +533,7 @@ final class PhpUnitAttributesFixerTest extends AbstractFixerTestCase
      */
     private static function createCase(array $scopes, string $expectedAttribute, string $inputAnnotation): array
     {
-        $expectedAttribute = str_replace('#[', '#[\\PHPUnit\\Framework\\Attributes\\', $expectedAttribute);
+        $expectedAttribute = str_replace('#[', '#[\PHPUnit\Framework\Attributes\\', $expectedAttribute);
 
         return [
             sprintf(

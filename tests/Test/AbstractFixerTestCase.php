@@ -48,7 +48,6 @@ use PhpCsFixer\Tests\Fixer\FunctionNotation\FunctionDeclarationFixerTest;
 use PhpCsFixer\Tests\Fixer\FunctionNotation\MethodArgumentSpaceFixerTest;
 use PhpCsFixer\Tests\Fixer\FunctionNotation\NativeFunctionInvocationFixerTest;
 use PhpCsFixer\Tests\Fixer\FunctionNotation\ReturnTypeDeclarationFixerTest;
-use PhpCsFixer\Tests\Fixer\Import\FullyQualifiedStrictTypesFixerTest;
 use PhpCsFixer\Tests\Fixer\Import\GlobalNamespaceImportFixerTest;
 use PhpCsFixer\Tests\Fixer\Import\OrderedImportsFixerTest;
 use PhpCsFixer\Tests\Fixer\Import\SingleImportPerStatementFixerTest;
@@ -323,6 +322,27 @@ abstract class AbstractFixerTestCase extends TestCase
         }
     }
 
+    final public function testDeprecatedFixersDoNotHaveDeprecatedSuccessor(): void
+    {
+        if (!$this->fixer instanceof DeprecatedFixerInterface || [] === $this->fixer->getSuccessorsNames()) {
+            $this->addToAssertionCount(1);
+
+            return;
+        }
+
+        foreach ($this->fixer->getSuccessorsNames() as $successorName) {
+            self::assertNotInstanceOf(
+                DeprecatedFixerInterface::class,
+                TestCaseUtils::getFixerByName($successorName),
+                sprintf(
+                    'Successor fixer `%s` for deprecated fixer `%s` is deprecated itself.',
+                    $successorName,
+                    $this->fixer->getName(),
+                )
+            );
+        }
+    }
+
     /**
      * Blur filter that find candidate fixer for performance optimization to use only `insertSlices` instead of multiple `insertAt` if there is no other collection manipulation.
      */
@@ -460,7 +480,6 @@ abstract class AbstractFixerTestCase extends TestCase
             DoctrineAnnotationIndentationFixerTest::class,
             DoctrineAnnotationSpacesFixerTest::class,
             EchoTagSyntaxFixerTest::class,
-            FullyQualifiedStrictTypesFixerTest::class,
             FunctionDeclarationFixerTest::class,
             FunctionToConstantFixerTest::class,
             GeneralPhpdocTagRenameFixerTest::class,
@@ -551,7 +570,7 @@ abstract class AbstractFixerTestCase extends TestCase
 
     protected function createFixer(): AbstractFixer
     {
-        $fixerClassName = preg_replace('/^(PhpCsFixer)\\\\Tests(\\\\.+)Test$/', '$1$2', static::class);
+        $fixerClassName = preg_replace('/^(PhpCsFixer)\\\Tests(\\\.+)Test$/', '$1$2', static::class);
 
         return new $fixerClassName();
     }
