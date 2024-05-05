@@ -169,6 +169,7 @@ final class WorkerCommand extends Command
                             $out->write([
                                 'action' => ParallelAction::RUNNER_RESULT,
                                 'file' => $absolutePath,
+                                'fileHash' => $this->events[0]->getFileHash(),
                                 'status' => $this->events[0]->getStatus(),
                                 'fixInfo' => array_pop($analysisResult),
                                 'errors' => $this->errorsManager->forPath($absolutePath),
