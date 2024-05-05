@@ -125,7 +125,9 @@ class Config implements ConfigInterface, ParallelRunnerConfigInterface
 
     public function getParallelConfig(): ParallelConfig
     {
-        return $this->parallelRunnerConfig ?? ParallelConfig::sequential();
+        $this->parallelRunnerConfig ??= ParallelConfig::sequential();
+
+        return $this->parallelRunnerConfig;
     }
 
     public function getPhpExecutable(): ?string
