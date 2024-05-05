@@ -144,9 +144,9 @@ final class WorkerCommand extends Command
                             return;
                         }
 
-                        // At this point we only expect analysis requests, so let's return early for any other message
                         if (ParallelAction::WORKER_RUN !== $action) {
-                            return;
+                            // At this point we only expect analysis requests, if any other action happen, we need to fix the code.
+                            throw new \LogicException(sprintf('Unexpected action ParallelAction::%s.', $action));
                         }
 
                         /** @var iterable<int, string> $files */
