@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace PhpCsFixer\Tests\Runner\Parallel;
 
-use PhpCsFixer\Runner\Parallel\ParallelConfig;
 use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 use PhpCsFixer\Tests\TestCase;
 
@@ -44,9 +43,9 @@ final class ParallelConfigFactoryTest extends TestCase
 
     public function testDetectConfigurationWithParams(): void
     {
-        $config = ParallelConfigFactory::detect(22, 2200);
+        $config = ParallelConfigFactory::detect(22, 2_200);
 
         self::assertSame(22, $config->getFilesPerProcess());
-        self::assertSame(2200, $config->getProcessTimeout());
+        self::assertSame(2_200, $config->getProcessTimeout());
     }
 }

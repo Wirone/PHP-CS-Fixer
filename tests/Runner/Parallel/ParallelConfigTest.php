@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace PhpCsFixer\Tests\Runner\Parallel;
 
 use PhpCsFixer\Runner\Parallel\ParallelConfig;
-use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 use PhpCsFixer\Tests\TestCase;
 
 /**
