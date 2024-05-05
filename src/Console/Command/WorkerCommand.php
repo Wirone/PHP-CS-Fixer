@@ -160,11 +160,14 @@ final class WorkerCommand extends Command
                             $runner->setFileIterator(new \ArrayIterator([new \SplFileInfo($absolutePath)]));
                             $analysisResult = $runner->fix();
 
+                            if (1 !== \count($this->events)) {
+                                throw new ParallelisationException('Runner did not report a fixing event or reported too many.');
+                            }
+
                             $out->write([
                                 'action' => ParallelAction::RUNNER_RESULT,
                                 'file' => $absolutePath,
-                                // @phpstan-ignore-next-line False-positive caused by assigning empty array to $events property
-                                'status' => isset($this->events[0]) ? $this->events[0]->getStatus() : null,
+                                'status' => $this->events[0]->getStatus(),
                                 'fixInfo' => $analysisResult[$relativePath] ?? null,
                                 'errors' => $this->errorsManager->forPath($absolutePath),
                             ]);
