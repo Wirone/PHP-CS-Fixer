@@ -133,6 +133,8 @@ final class Runner
      */
     public function setFileIterator(iterable $fileIterator): void
     {
+        // @TODO consider to drop this method and make iterator parameter obligatory in constructor,
+        // more in https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/pull/7777/files#r1590447581
         $this->fileIterator = $fileIterator;
     }
 
