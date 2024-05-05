@@ -171,7 +171,7 @@ final class Runner
         $fileIterator = $this->getFilteringFileIterator();
         $fileIterator->rewind();
 
-        $filesChunkGenerator = function () use ($fileIterator, $maxFilesPerProcess): array {
+        $filesChunkGenerator = static function () use ($fileIterator, $maxFilesPerProcess): array {
             $files = [];
 
             while (\count($files) < $maxFilesPerProcess) {
