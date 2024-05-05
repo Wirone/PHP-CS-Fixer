@@ -152,7 +152,7 @@ final class WorkerCommand extends Command
                         /** @var iterable<int, string> $files */
                         $files = $json['files'];
 
-                        foreach ($files as $i => $absolutePath) {
+                        foreach ($files as $absolutePath) {
                             $relativePath = $this->configurationResolver->getDirectory()->getRelativePathTo($absolutePath);
 
                             // Reset events because we want to collect only those coming from analysed files chunk
