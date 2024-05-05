@@ -30,7 +30,7 @@ final class ParallelisationExceptionTest extends TestCase
         $identifier = ProcessIdentifier::fromRaw('php-cs-fixer_parallel_foo');
         $exception = ParallelisationException::forUnknownIdentifier($identifier);
 
-        self::assertSame('Unknown process identifier: php-cs-fixer_parallel_foo', $exception->getMessage());
+        self::assertSame('Unknown process identifier: php-cs-fixer_parallel_foo.', $exception->getMessage());
         self::assertSame(0, $exception->getCode());
     }
 
