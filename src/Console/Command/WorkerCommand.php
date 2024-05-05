@@ -77,43 +77,13 @@ final class WorkerCommand extends Command
     {
         $this->setDefinition(
             [
-                new InputOption(
-                    'port',
-                    null,
-                    InputOption::VALUE_REQUIRED,
-                    'Specifies parallelisation server\'s port.'
-                ),
-                new InputOption(
-                    'identifier',
-                    null,
-                    InputOption::VALUE_REQUIRED,
-                    'Specifies parallelisation process\' identifier.'
-                ),
-                new InputOption(
-                    'allow-risky',
-                    '',
-                    InputOption::VALUE_REQUIRED,
-                    'Are risky fixers allowed (can be `yes` or `no`).'
-                ),
+                new InputOption('port', null, InputOption::VALUE_REQUIRED, 'Specifies parallelisation server\'s port.'),
+                new InputOption('identifier', null, InputOption::VALUE_REQUIRED, 'Specifies parallelisation process\' identifier.'),
+                new InputOption('allow-risky', '', InputOption::VALUE_REQUIRED, 'Are risky fixers allowed (can be `yes` or `no`).'),
                 new InputOption('config', '', InputOption::VALUE_REQUIRED, 'The path to a config file.'),
-                new InputOption(
-                    'dry-run',
-                    '',
-                    InputOption::VALUE_NONE,
-                    'Only shows which files would have been modified.'
-                ),
-                new InputOption(
-                    'rules',
-                    '',
-                    InputOption::VALUE_REQUIRED,
-                    'List of rules that should be run against configured paths.'
-                ),
-                new InputOption(
-                    'using-cache',
-                    '',
-                    InputOption::VALUE_REQUIRED,
-                    'Should cache be used (can be `yes` or `no`).'
-                ),
+                new InputOption('dry-run', '', InputOption::VALUE_NONE, 'Only shows which files would have been modified.'),
+                new InputOption('rules', '', InputOption::VALUE_REQUIRED, 'List of rules that should be run against configured paths.'),
+                new InputOption('using-cache', '', InputOption::VALUE_REQUIRED, 'Should cache be used (can be `yes` or `no`).'),
                 new InputOption('cache-file', '', InputOption::VALUE_REQUIRED, 'The path to the cache file.'),
                 new InputOption('diff', '', InputOption::VALUE_NONE, 'Prints diff for each file.'),
             ]
