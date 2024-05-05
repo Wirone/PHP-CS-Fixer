@@ -140,8 +140,10 @@ final class ErrorsManagerTest extends TestCase
 
         self::assertFalse($errorsManager->isEmpty());
 
-        $errors = $errorsManager->forPath('foo.php');
+        $errors = $errorsManager->popAllErrors();
+        self::assertCount(5, $errors);
 
-        self::assertCount(3, $errors);
+        $errors = $errorsManager->popAllErrors();
+        self::assertCount(0, $errors);
     }
 }
