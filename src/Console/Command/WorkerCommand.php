@@ -207,7 +207,7 @@ final class WorkerCommand extends Command
                 'dry-run' => $input->getOption('dry-run'),
                 'rules' => $passedRules,
                 'path' => [],
-                'path-mode' => ConfigurationResolver::PATH_MODE_OVERRIDE,
+                'path-mode' => ConfigurationResolver::PATH_MODE_OVERRIDE, // IMPORTANT! WorkerCommand is called with file that already passed filtering, so here we can rely on PATH_MODE_OVERRIDE.
                 'using-cache' => $input->getOption('using-cache'),
                 'cache-file' => $input->getOption('cache-file'),
                 'diff' => $input->getOption('diff'),
