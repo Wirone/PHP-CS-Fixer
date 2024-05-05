@@ -21,7 +21,7 @@ If you do not have config file, you can run following command to fix non-hidden,
 
     php php-cs-fixer.phar fix .
 
-You can also fix files in parallel, utilising more CPU cores. You can do this by using config class that implements ``PhpCsFixer\Runner\Parallel\ParallelConfig\ParallelRunnerConfigInterface``, and use ``setParallelConfig()`` method. Recommended way is to utilise auto-detecting parallel configuration:
+You can also fix files in parallel, utilising more CPU cores. You can do this by using config class that implements ``PhpCsFixer\Runner\Parallel\ParallelConfig\ParallelAwareConfigInterface``, and use ``setParallelConfig()`` method. Recommended way is to utilise auto-detecting parallel configuration:
 
 .. code-block:: php
 
