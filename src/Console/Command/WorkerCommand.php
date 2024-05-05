@@ -153,8 +153,6 @@ final class WorkerCommand extends Command
                         $files = $json['files'];
 
                         foreach ($files as $absolutePath) {
-                            $relativePath = $this->configurationResolver->getDirectory()->getRelativePathTo($absolutePath);
-
                             // Reset events because we want to collect only those coming from analysed files chunk
                             $this->events = [];
                             $runner->setFileIterator(new \ArrayIterator([new \SplFileInfo($absolutePath)]));
@@ -164,11 +162,15 @@ final class WorkerCommand extends Command
                                 throw new ParallelisationException('Runner did not report a fixing event or reported too many.');
                             }
 
+                            if (1 < \count($analysisResult)) {
+                                throw new ParallelisationException('Runner returned more analysis results than expected.');
+                            }
+
                             $out->write([
                                 'action' => ParallelAction::RUNNER_RESULT,
                                 'file' => $absolutePath,
                                 'status' => $this->events[0]->getStatus(),
-                                'fixInfo' => $analysisResult[$relativePath] ?? null,
+                                'fixInfo' => array_pop($analysisResult),
                                 'errors' => $this->errorsManager->forPath($absolutePath),
                             ]);
                         }
