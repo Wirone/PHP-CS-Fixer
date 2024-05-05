@@ -167,13 +167,14 @@ final class Runner
         }
 
         $processPool = new ProcessPool($server);
+        $maxFilesPerProcess = $this->parallelConfig->getFilesPerProcess();
         $fileIterator = $this->getFilteringFileIterator();
         $fileIterator->rewind();
 
-        $fileChunk = function () use ($fileIterator): array {
+        $fileChunk = function () use ($fileIterator, $maxFilesPerProcess): array {
             $files = [];
 
-            while (\count($files) < $this->parallelConfig->getFilesPerProcess()) {
+            while (\count($files) < $maxFilesPerProcess) {
                 $current = $fileIterator->current();
 
                 if (null === $current) {
