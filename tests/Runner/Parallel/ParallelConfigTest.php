@@ -15,12 +15,14 @@ declare(strict_types=1);
 namespace PhpCsFixer\Tests\Runner\Parallel;
 
 use PhpCsFixer\Runner\Parallel\ParallelConfig;
+use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 use PhpCsFixer\Tests\TestCase;
 
 /**
  * @internal
  *
  * @covers \PhpCsFixer\Runner\Parallel\ParallelConfig
+ * @covers \PhpCsFixer\Runner\Parallel\ParallelConfigFactory
  *
  * @TODO Test `detect()` method, but first discuss the best way to do it.
  */
@@ -63,14 +65,14 @@ final class ParallelConfigTest extends TestCase
 
     public function testSequentialConfigHasExactlyOneProcess(): void
     {
-        $config = ParallelConfig::sequential();
+        $config = ParallelConfigFactory::sequential();
 
         self::assertSame(1, $config->getMaxProcesses());
     }
 
     public function testDetectConfiguration(): void
     {
-        $config = ParallelConfig::detect(1, 100);
+        $config = ParallelConfigFactory::detect(1, 100);
 
         self::assertSame(1, $config->getFilesPerProcess());
         self::assertSame(100, $config->getProcessTimeout());

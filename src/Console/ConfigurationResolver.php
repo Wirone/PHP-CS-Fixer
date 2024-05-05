@@ -39,6 +39,7 @@ use PhpCsFixer\ParallelAwareConfigInterface;
 use PhpCsFixer\RuleSet\RuleSet;
 use PhpCsFixer\RuleSet\RuleSetInterface;
 use PhpCsFixer\Runner\Parallel\ParallelConfig;
+use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 use PhpCsFixer\StdinFileInfo;
 use PhpCsFixer\ToolInfoInterface;
 use PhpCsFixer\Utils;
@@ -283,7 +284,7 @@ final class ConfigurationResolver
 
         return true !== $this->options['sequential'] && $config instanceof ParallelAwareConfigInterface
             ? $config->getParallelConfig()
-            : ParallelConfig::sequential();
+            : ParallelConfigFactory::sequential();
     }
 
     public function getConfigFile(): ?string

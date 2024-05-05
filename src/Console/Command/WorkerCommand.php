@@ -21,7 +21,7 @@ use PhpCsFixer\Console\ConfigurationResolver;
 use PhpCsFixer\Error\ErrorsManager;
 use PhpCsFixer\FixerFileProcessedEvent;
 use PhpCsFixer\Runner\Parallel\ParallelAction;
-use PhpCsFixer\Runner\Parallel\ParallelConfig;
+use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 use PhpCsFixer\Runner\Parallel\ParallelisationException;
 use PhpCsFixer\Runner\Parallel\ReadonlyCacheManager;
 use PhpCsFixer\Runner\Runner;
@@ -228,7 +228,7 @@ final class WorkerCommand extends Command
             new ReadonlyCacheManager($this->configurationResolver->getCacheManager()),
             $this->configurationResolver->getDirectory(),
             $this->configurationResolver->shouldStopOnViolation(),
-            ParallelConfig::sequential(), // IMPORTANT! Worker must run in sequential mode
+            ParallelConfigFactory::sequential(), // IMPORTANT! Worker must run in sequential mode.
             null,
             $this->configurationResolver->getConfigFile()
         );

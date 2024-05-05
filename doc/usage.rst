@@ -28,7 +28,7 @@ You can also fix files in parallel, utilising more CPU cores. You can do this by
     <?php
 
     return (new PhpCsFixer\Config())
-        ->setParallelConfig(ParallelConfig::detect())
+        ->setParallelConfig(ParallelConfigFactory::detect())
     ;
 
 However, in some case you may want to fine-tune parallelisation with explicit values (e.g. in environments where auto-detection does not work properly and suggests more cores than it should):

@@ -34,6 +34,7 @@ use PhpCsFixer\Linter\LintingResultInterface;
 use PhpCsFixer\Preg;
 use PhpCsFixer\Runner\Parallel\ParallelAction;
 use PhpCsFixer\Runner\Parallel\ParallelConfig;
+use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 use PhpCsFixer\Runner\Parallel\ParallelisationException;
 use PhpCsFixer\Runner\Parallel\ProcessFactory;
 use PhpCsFixer\Runner\Parallel\ProcessIdentifier;
@@ -122,7 +123,7 @@ final class Runner
         $this->cacheManager = $cacheManager;
         $this->directory = $directory ?? new Directory('');
         $this->stopOnViolation = $stopOnViolation;
-        $this->parallelConfig = $parallelConfig ?? ParallelConfig::sequential();
+        $this->parallelConfig = $parallelConfig ?? ParallelConfigFactory::sequential();
         $this->input = $input;
         $this->configFile = $configFile;
     }

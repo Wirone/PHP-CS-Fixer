@@ -16,6 +16,7 @@ namespace PhpCsFixer;
 
 use PhpCsFixer\Fixer\FixerInterface;
 use PhpCsFixer\Runner\Parallel\ParallelConfig;
+use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
@@ -125,7 +126,7 @@ class Config implements ConfigInterface, ParallelAwareConfigInterface
 
     public function getParallelConfig(): ParallelConfig
     {
-        $this->parallelConfig ??= ParallelConfig::sequential();
+        $this->parallelConfig ??= ParallelConfigFactory::sequential();
 
         return $this->parallelConfig;
     }
