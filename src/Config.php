@@ -91,9 +91,7 @@ class Config implements ConfigInterface, ParallelRunnerConfigInterface
      */
     public function getFinder(): iterable
     {
-        if (null === $this->finder) {
-            $this->finder = new Finder();
-        }
+        $this->finder ??= new Finder();
 
         return $this->finder;
     }
