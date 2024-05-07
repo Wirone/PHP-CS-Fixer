@@ -36,7 +36,7 @@ final class ParallelConfigFactory
      */
     public static function detect(
         ?int $filesPerProcess = null,
-        ?int $processTimeout = null,
+        ?int $processTimeout = null
     ): ParallelConfig {
         $counter = new CpuCoreCounter([
             ...FinderRegistry::getDefaultLogicalFinders(),
