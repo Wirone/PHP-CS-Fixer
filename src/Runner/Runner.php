@@ -173,7 +173,7 @@ final class Runner
         $fileIterator = $this->getFilteringFileIterator();
         $fileIterator->rewind();
 
-        $filesChunkGenerator = static function () use ($fileIterator, $maxFilesPerProcess): array {
+        $getFileChunk = static function () use ($fileIterator, $maxFilesPerProcess): array {
             $files = [];
 
             while (\count($files) < $maxFilesPerProcess) {
@@ -192,13 +192,13 @@ final class Runner
         };
 
         // [REACT] Handle worker's handshake (init connection)
-        $server->on('connection', static function (ConnectionInterface $connection) use ($processPool, $filesChunkGenerator): void {
+        $server->on('connection', static function (ConnectionInterface $connection) use ($processPool, $getFileChunk): void {
             $jsonInvalidUtf8Ignore = \defined('JSON_INVALID_UTF8_IGNORE') ? JSON_INVALID_UTF8_IGNORE : 0;
             $decoder = new Decoder($connection, true, 512, $jsonInvalidUtf8Ignore);
             $encoder = new Encoder($connection, $jsonInvalidUtf8Ignore);
 
             // [REACT] Bind connection when worker's process requests "hello" action (enables 2-way communication)
-            $decoder->on('data', static function (array $data) use ($processPool, $filesChunkGenerator, $decoder, $encoder): void {
+            $decoder->on('data', static function (array $data) use ($processPool, $getFileChunk, $decoder, $encoder): void {
                 if (ParallelAction::RUNNER_HELLO !== $data['action']) {
                     return;
                 }
@@ -206,7 +206,7 @@ final class Runner
                 $identifier = ProcessIdentifier::fromRaw($data['identifier']);
                 $process = $processPool->getProcess($identifier);
                 $process->bindConnection($decoder, $encoder);
-                $filesChunkForJob = $filesChunkGenerator();
+                $filesChunkForJob = $getFileChunk();
 
                 if (0 === \count($filesChunkForJob)) {
                     $process->request(['action' => ParallelAction::WORKER_THANK_YOU]);
@@ -241,7 +241,7 @@ final class Runner
             $processPool->addProcess($identifier, $process);
             $process->start(
                 // [REACT] Handle workers' responses (multiple actions possible)
-                function (array $workerResponse) use ($processPool, $process, $identifier, $filesChunkGenerator, &$changed): void {
+                function (array $workerResponse) use ($processPool, $process, $identifier, $getFileChunk, &$changed): void {
                     // File analysis result (we want close-to-realtime progress with frequent cache savings)
                     if (ParallelAction::RUNNER_RESULT === $workerResponse['action']) {
                         $fileAbsolutePath = $workerResponse['file'];
@@ -286,7 +286,7 @@ final class Runner
 
                     if (ParallelAction::RUNNER_GET_FILE_CHUNK === $workerResponse['action']) {
                         // Request another chunk of files, if still available
-                        $filesChunkForJob = $filesChunkGenerator();
+                        $filesChunkForJob = $getFileChunk();
 
                         if (0 === \count($filesChunkForJob)) {
                             $process->request(['action' => ParallelAction::WORKER_THANK_YOU]);
