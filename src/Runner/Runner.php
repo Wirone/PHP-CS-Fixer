@@ -206,16 +206,16 @@ final class Runner
                 $identifier = ProcessIdentifier::fromRaw($data['identifier']);
                 $process = $processPool->getProcess($identifier);
                 $process->bindConnection($decoder, $encoder);
-                $filesChunkForJob = $getFileChunk();
+                $fileChunk = $getFileChunk();
 
-                if (0 === \count($filesChunkForJob)) {
+                if (0 === \count($fileChunk)) {
                     $process->request(['action' => ParallelAction::WORKER_THANK_YOU]);
                     $processPool->endProcessIfKnown($identifier);
 
                     return;
                 }
 
-                $process->request(['action' => ParallelAction::WORKER_RUN, 'files' => $filesChunkForJob]);
+                $process->request(['action' => ParallelAction::WORKER_RUN, 'files' => $fileChunk]);
             });
         });
 
@@ -286,16 +286,16 @@ final class Runner
 
                     if (ParallelAction::RUNNER_GET_FILE_CHUNK === $workerResponse['action']) {
                         // Request another chunk of files, if still available
-                        $filesChunkForJob = $getFileChunk();
+                        $fileChunk = $getFileChunk();
 
-                        if (0 === \count($filesChunkForJob)) {
+                        if (0 === \count($fileChunk)) {
                             $process->request(['action' => ParallelAction::WORKER_THANK_YOU]);
                             $processPool->endProcessIfKnown($identifier);
 
                             return;
                         }
 
-                        $process->request(['action' => ParallelAction::WORKER_RUN, 'files' => $filesChunkForJob]);
+                        $process->request(['action' => ParallelAction::WORKER_RUN, 'files' => $fileChunk]);
 
                         return;
                     }
