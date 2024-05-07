@@ -166,7 +166,7 @@ final class WorkerCommand extends Command
                                 // @phpstan-ignore-next-line False-positive caused by assigning empty array to $events property
                                 'status' => isset($this->events[0]) ? $this->events[0]->getStatus() : null,
                                 'fixInfo' => $analysisResult[$relativePath] ?? null,
-                                'errors' => $this->errorsManager->popAllErrors(),
+                                'errors' => $this->errorsManager->forPath($absolutePath),
                             ]);
                         }
 

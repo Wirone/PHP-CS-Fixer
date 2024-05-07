@@ -74,14 +74,13 @@ final class ErrorsManager
     }
 
     /**
+     * Returns errors reported for specified path.
+     *
      * @return list<Error>
      */
-    public function popAllErrors(): array
+    public function forPath(string $path): array
     {
-        $errors = $this->errors;
-        $this->errors = [];
-
-        return $errors;
+        return array_values(array_filter($this->errors, static fn (Error $error): bool => $path === $error->getFilePath()));
     }
 
     /**
