@@ -46,6 +46,8 @@ use PhpCsFixer\Tokenizer\Tokens;
  *     class?: array<class-string, string>,
  *     function?: array<class-string, string>
  * }
+ *
+ * @phpstan-import-type _ImportType from \PhpCsFixer\Tokenizer\Analyzer\Analysis\NamespaceUseAnalysis
  */
 final class FullyQualifiedStrictTypesFixer extends AbstractFixer implements ConfigurableFixerInterface, WhitespacesAwareFixerInterface
 {
@@ -86,9 +88,9 @@ final class FullyQualifiedStrictTypesFixer extends AbstractFixer implements Conf
 
     /**
      * @var array{
-     *     constant?: array<string, string>,
-     *     class?: array<string, string>,
-     *     function?: array<string, string>
+     *     constant?: array<string, class-string>,
+     *     class?: array<string, class-string>,
+     *     function?: array<string, class-string>
      * }
      */
     private array $cacheUseNameByShortNameLower;
@@ -283,7 +285,7 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
 
             $namespaceName = $namespace->getFullName();
 
-            /** @var _Uses */
+            /** @var _Uses $uses */
             $uses = [];
             $lastUse = null;
 
@@ -291,7 +293,8 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
                 if (!$use->isClass()) {
                     continue;
                 }
-                $uses[$use->getHumanFriendlyType()][ltrim($use->getFullName(), '\\')] = $use->getShortName();
+
+                $uses[$use->getHumanFriendlyType()][$this->normaliseFqn($use->getFullName())] = $use->getShortName();
                 $lastUse = $use;
             }
 
@@ -335,7 +338,9 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
                     } elseif (\defined('T_ATTRIBUTE') && $tokens[$index]->isGivenKind(T_ATTRIBUTE)) { // @TODO: drop const check when PHP 8.0+ is required
                         $this->fixAttribute($tokens, $index, $uses, $namespaceName);
                     } elseif ($discoverSymbolsPhase && !\defined('T_ATTRIBUTE') && $tokens[$index]->isComment() && Preg::match('/#\[\s*('.self::REGEX_CLASS.')/', $tokens[$index]->getContent(), $matches)) { // @TODO: drop when PHP 8.0+ is required
-                        $this->determineShortType($matches[1], 'class', $uses, $namespaceName);
+                        /** @var class-string $attributeClass */
+                        $attributeClass = $matches[1];
+                        $this->determineShortType($attributeClass, 'class', $uses, $namespaceName);
                     } elseif ($tokens[$index]->isGivenKind(T_DOC_COMMENT)) {
                         Preg::matchAll('/\*\h*@(?:psalm-|phpstan-)?(?:template(?:-covariant|-contravariant)?|(?:import-)?type)\h+('.TypeExpression::REGEX_IDENTIFIER.')(?!\S)/i', $tokens[$index]->getContent(), $matches);
                         foreach ($matches[1] as $reservedIdentifier) {
@@ -392,7 +397,7 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
             $this->cacheUseShortNameByNameLower = [];
             foreach ($kindUses as $useLongName => $useShortName) {
                 $this->cacheUseNameByShortNameLower[$kind][strtolower($useShortName)] = $useLongName;
-                $this->cacheUseShortNameByNameLower[$kind][strtolower($useLongName)] = $useShortName;
+                $this->cacheUseShortNameByNameLower[$kind][$this->normaliseFqn($useLongName)] = $useShortName;
             }
         }
     }
@@ -419,17 +424,19 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
     /**
      * Resolve absolute or relative symbol to normalized FQCN.
      *
-     * @param "class"|"constant"|"function" $importKind
-     * @param _Uses                         $uses
+     * @param _ImportType $importKind
+     * @param _Uses       $uses
+     *
+     * @return class-string
      */
     private function resolveSymbol(string $symbol, string $importKind, array $uses, string $namespaceName): string
     {
         if (str_starts_with($symbol, '\\')) {
-            return substr($symbol, 1);
+            return substr($symbol, 1); // @phpstan-ignore return.type
         }
 
         if ($this->isReservedIdentifier($symbol)) {
-            return $symbol;
+            return $symbol; // @phpstan-ignore return.type
         }
 
         $this->refreshUsesCache($uses);
@@ -437,17 +444,18 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
         $symbolArr = explode('\\', $symbol, 2);
         $shortStartNameLower = strtolower($symbolArr[0]);
         if (isset($this->cacheUseNameByShortNameLower[$importKind][$shortStartNameLower])) {
+            // @phpstan-ignore return.type
             return $this->cacheUseNameByShortNameLower[$importKind][$shortStartNameLower].(isset($symbolArr[1]) ? '\\'.$symbolArr[1] : '');
         }
 
-        return ('' !== $namespaceName ? $namespaceName.'\\' : '').$symbol;
+        return ('' !== $namespaceName ? $namespaceName.'\\' : '').$symbol; // @phpstan-ignore return.type
     }
 
     /**
      * Shorten normalized FQCN as much as possible.
      *
-     * @param "class"|"constant"|"function" $importKind
-     * @param _Uses                         $uses
+     * @param _ImportType $importKind
+     * @param _Uses       $uses
      */
     private function shortenSymbol(string $fqcn, string $importKind, array $uses, string $namespaceName): string
     {
@@ -624,6 +632,7 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
             $unsupported = false;
 
             return $matches[1].$matches[2].$matches[3].implode('|', array_map(function ($v) use ($uses, $namespaceName, &$unsupported) {
+                /** @var class-string $v */
                 if ($unsupported || !Preg::match('/^'.self::REGEX_CLASS.'$/', $v)) {
                     $unsupported = true;
 
@@ -715,7 +724,7 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
     }
 
     /**
-     * @param array<string, string> $uses
+     * @param _Uses $uses
      */
     private function fixAttribute(Tokens $tokens, int $index, array $uses, string $namespaceName): void
     {
@@ -790,6 +799,7 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
      */
     private function shortenClassIfPossible(Tokens $tokens, int $typeStartIndex, int $typeEndIndex, array $uses, string $namespaceName): int
     {
+        /** @var class-string $content */
         $content = $tokens->generatePartialCode($typeStartIndex, $typeEndIndex);
         $newTokens = $this->determineShortType($content, 'class', $uses, $namespaceName);
         if (null === $newTokens) {
@@ -815,6 +825,7 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
         $types = $this->getTypes($tokens, $typeStartIndex, $type->getEndIndex());
 
         foreach ($types as [$startIndex, $endIndex]) {
+            /** @var class-string $content */
             $content = $tokens->generatePartialCode($startIndex, $endIndex);
             $newTokens = $this->determineShortType($content, 'class', $uses, $namespaceName);
             if (null !== $newTokens) {
@@ -826,8 +837,9 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
     /**
      * Determines short type based on FQCN, current namespace and imports (`use` declarations).
      *
-     * @param "class"|"constant"|"function" $importKind
-     * @param _Uses                         $uses
+     * @param class-string $typeName
+     * @param _ImportType  $importKind
+     * @param _Uses        $uses
      *
      * @return null|list<Token>
      */
@@ -835,7 +847,7 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
     {
         if (null !== $this->discoveredSymbols) {
             if (!$this->isReservedIdentifier($typeName)) {
-                $this->discoveredSymbols['class'][] = $typeName;
+                $this->discoveredSymbols[$importKind][] = $typeName;
             }
 
             return null;
@@ -932,5 +944,15 @@ class Foo extends \Other\BaseClass implements \Other\Interface1, \Other\Interfac
     private function createImportProcessor(): ImportProcessor
     {
         return new ImportProcessor($this->whitespacesConfig);
+    }
+
+    /**
+     * @param class-string $fqn
+     *
+     * @return class-string
+     */
+    private function normaliseFqn(string $fqn): string
+    {
+        return ltrim(strtolower($fqn), '\\'); // @phpstan-ignore return.type
     }
 }
