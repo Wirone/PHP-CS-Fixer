@@ -186,12 +186,14 @@ final class Runner
      */
     private function fixParallel(): array
     {
+        echo "Runner::fixParallel() -> Let's go!\n";
         $this->dispatchEvent(AnalysisStarted::NAME, new AnalysisStarted(AnalysisStarted::MODE_PARALLEL, $this->isDryRun));
 
         $changed = [];
         $streamSelectLoop = new StreamSelectLoop();
         $server = new TcpServer('127.0.0.1:0', $streamSelectLoop);
         $serverPort = parse_url($server->getAddress() ?? '', \PHP_URL_PORT);
+        echo "Runner::fixParallel() -> server started on port {$serverPort}\n";
 
         if (!is_numeric($serverPort)) {
             throw new ParallelisationException(\sprintf(
@@ -240,6 +242,8 @@ final class Runner
                     return;
                 }
 
+                echo "Received data with action={$data['action']} from process {$data['identifier']}\n";
+
                 $identifier = ProcessIdentifier::fromRaw($data['identifier']);
 
                 // Avoid race condition where worker tries to establish connection,
@@ -273,6 +277,7 @@ final class Runner
         );
         $processFactory = new ProcessFactory();
 
+        echo "Runner::fixParallel() -> Spawning {$processesToSpawn} processes\n";
         for ($i = 0; $i < $processesToSpawn; ++$i) {
             $identifier = ProcessIdentifier::create();
             $process = $processFactory->create(
@@ -291,6 +296,8 @@ final class Runner
             $process->start(
                 // [REACT] Handle workers' responses (multiple actions possible)
                 function (array $workerResponse) use ($processPool, $process, $identifier, $getFileChunk, &$changed): void {
+                    echo "Received response with action={$workerResponse['action']} from process {$identifier->toString()}\n";
+
                     // File analysis result (we want close-to-realtime progress with frequent cache savings)
                     if (ParallelAction::WORKER_RESULT === $workerResponse['action']) {
                         // Dispatch an event for each file processed and dispatch its status (required for progress output)
@@ -318,6 +325,8 @@ final class Runner
                             $changed[$relativePath] = $workerResponse['fixInfo'];
 
                             if ($this->stopOnViolation) {
+                                echo "Violation found in process {$identifier->toString()}, closing all processes\n";
+
                                 $processPool->endAll();
 
                                 return;
@@ -352,6 +361,7 @@ final class Runner
 
                 // [REACT] Handle errors encountered during worker's execution
                 static function (\Throwable $error) use ($processPool): void {
+                    echo "Error happened! Ending all processes\n";
                     $processPool->endAll();
 
                     throw new ParallelisationException($error->getMessage(), $error->getCode(), $error);
@@ -359,6 +369,8 @@ final class Runner
 
                 // [REACT] Handle worker's shutdown
                 static function ($exitCode, string $output) use ($processPool, $identifier): void {
+                    echo "Exiting process {$identifier->toString()} with exit code {$exitCode}\n";
+
                     $processPool->endProcessIfKnown($identifier);
 
                     if (0 === $exitCode || null === $exitCode) {
@@ -380,7 +392,9 @@ final class Runner
             );
         }
 
+        echo "Runner::fixParallel() -> starting stream select loop\n";
         $streamSelectLoop->run();
+        echo "Runner::fixParallel() -> finished stream select loop\n";
 
         return $changed;
     }
